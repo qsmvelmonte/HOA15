@@ -1,0 +1,133 @@
+  - name: install cinder (Ubuntu)
+    apt:
+      name:
+        - cinder-api
+        - cinder-scheduler
+      state: present
+
+  - name: remove other connection in database
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      regexp: '^connection = '
+      state: absent
+      insertafter: '^\[database\]'
+
+  - name: add connection in database
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'connection = mysql+pymysql://cinder:jenmar0112@clone1/cinder'
+      state: present
+      insertafter: '^\[database\]'
+
+  - name: add transport_url in DEFAULT
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'transport_url = rabbit://openstack:jenmar0112@clone1'
+      state: present
+      insertafter: '^\[DEFAULT\]'
+
+  - name: add auth_strategy in DEFAULT
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'auth_strategy = keystone'
+      state: present
+      insertafter: '^\[DEFAULT\]'
+
+  - name: add authenticate in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'www_authenticate_uri = http://controller:5000'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add auth_url in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'auth_url = http://controller:5000'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add memcached_servers in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'memcached_servers = controller:11211'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add auth_type in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'auth_type = password'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add project_domain_name in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'project_domain_name = Default'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add user_domain_name in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'user_domain_name = Default'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add project_name in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'project_name = service'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add username in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'username = cinder'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add password in keystone_authtoken
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'password = jenmar0112'
+      state: present
+      insertafter: '^\[keystone_authtoken\]'
+
+  - name: add my_ip in DEFAULT
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'my_ip = 192.168.56.111'
+      state: present
+      insertafter: '^\[DEFAULT\]'
+
+  - name: add lock_path in oslo_concurrency
+    lineinfile:
+      path: /etc/cinder/cinder.conf
+      line: 'lock_path = /var/lib/cinder/tmp'
+      state: present
+      insertafter: '^\[oslo_concurrency\]'
+
+  - name: add os_region_name in cinder
+    lineinfile:
+      path: /etc/nova/nova.conf
+      line: 'os_region_name = RegionOne'
+      state: present
+      insertafter: '^\[cinder\]'
+
+  - name: restart nova-api service
+    service:
+      name: nova-api
+      state: restarted
+
+  - name: restart cinder-scheduler service
+    service:
+      name: cinder-scheduler
+      state: restarted
+
+  - name: restart apache2 service
+    service:
+      name: apache2
+      state: restarted

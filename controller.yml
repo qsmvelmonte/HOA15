@@ -1,0 +1,36 @@
+---
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: install update and repositories (CentOS)
+    tags: always
+    yum:
+      name: "*"
+      update_cache: yes
+      state: latest
+    changed_when: false
+    when: ansible_distribution == "CentOS"
+
+  - name: Ensure dpkg is configured (Ubuntu)
+    raw: sudo dpkg --configure -a
+    ignore_errors: yes
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+  - name: install update and repositories (Ubuntu)
+    tags: always
+    apt:
+      upgrade: yes
+      update_cache: yes
+      cache_valid_time: 86400
+    changed_when: false
+    when: ansible_distribution == "Ubuntu"
+
+- hosts: controller_ubuntu
+  become: true
+  roles:
+    - NeutronUbuntu
+    - HorizonUbuntu
+    - CinderUbuntu
+
